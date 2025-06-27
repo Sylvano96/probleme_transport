@@ -1,0 +1,82 @@
+.card-table {
+    padding: 20px 40px;
+    background-color: rgba(236, 158, 13, 0.918);
+    border: none;
+    border-radius: 20px;
+    margin: 20px;
+    transition: 0.5s;
+}
+
+body {
+    font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 16px;
+    /* Good base font size */
+    line-height: 1.6;
+    /* Improves readability */
+}
+
+.bg-dark, .bg-white {
+  transition: 0.6s;
+}
+.card-table p {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.card-table:hover {
+    background-color: orange;
+    transition: 0.5s;
+}
+
+table tr,
+td {
+    border: none;
+    border-color: none;
+}
+
+.card-table table {
+    margin-top: 16px;
+}
+
+.icon-gear {
+    animation: rotate 2s infinite ease-in-out;
+}
+
+.btn-starting {
+    padding: 10px 10px;
+    border: 2px solid orange;
+    border-radius: 10px;
+    background-color: orange;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    transition: .3s;
+    font-weight: bold;
+
+}
+
+.btn-starting:hover {
+    background-color: transparent;
+    border: 2px solid orange;
+    transition: .3s;
+}
+
+.iconArrowRight {
+    font-size: 20px;
+    margin: 0 10px;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
