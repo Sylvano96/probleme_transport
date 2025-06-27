@@ -1,0 +1,3 @@
+Tu as besoin d'installer ces dépendances 😊....
+
+pip install flask flask_cors
