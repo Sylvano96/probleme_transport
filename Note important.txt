@@ -1,3 +1,4 @@
-Tu as besoin d'installer ces dépendances 😊....
+Important be ty
+manaova pip install numpy koa
 
-pip install flask flask_cors
+pip install numpy

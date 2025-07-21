@@ -1,9 +1,4 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 import numpy as np
-
-app = Flask(__name__)
-CORS(app)
 
 def nb_minitab(couts):
     x = []
@@ -57,7 +52,7 @@ def find_cycle(basic_cells, new_cell, m, n):
 
 def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, tableau_primary):
     if sum(quantite_demande) != sum(quantite_stocke):
-        return {'error': f'Erreur : La quantité demandée ({sum(quantite_demande)}) et stockée ({sum(quantite_stocke)}) doivent être égales.'}
+        return f'Erreur : La quantité demandée ({sum(quantite_demande)}) et stockée ({sum(quantite_stocke)}) doivent être égales.'
 
     m, n = len(couts), len(couts[0])
     tableau_minitab = [[0] * n for _ in range(m)]
@@ -98,6 +93,7 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
     # Gérer le cas dégénéré : ajouter une allocation ε si nécessaire
     expected_basic_cells = m + n - 1
     if len(basic_cells) < expected_basic_cells:
+        # Trouver une cellule non de base avec coût minimum pour ajouter ε
         min_cost = float('inf')
         epsilon_cell = None
         for i in range(m):
@@ -210,21 +206,12 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
             if tableau_minitab[i][j] == 0:
                 basic_cells.remove((i, j))
 
-        # Vérifier la redondance avant d'enregistrer la solution
-        new_solution = {
+        # Sauvegarder la solution après chaque itération
+        solutions.append({
             'solution_base': sum(couts[i][j] * (tableau_minitab[i][j] if isinstance(tableau_minitab[i][j], (int, float)) else 0) for i in range(m) for j in range(n)),
             'tableau': [row[:] for row in tableau_minitab],
             'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells]
-        }
-        is_redundant = any(
-            existing['tableau'] == new_solution['tableau'] and 
-            sorted(existing['direction_client']) == sorted(new_solution['direction_client'])
-            for existing in solutions
-        )
-        if not is_redundant:
-            solutions.append(new_solution)
-        else:
-            print("Solution redondante détectée, ignorée.")
+        })
 
         # Recalculer le coût
         solution_base = sum(couts[i][j] * (tableau_minitab[i][j] if isinstance(tableau_minitab[i][j], (int, float)) else 0) for i in range(m) for j in range(n))
@@ -243,48 +230,20 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
 
     return solutions
 
-@app.route('/solve', methods=['POST'])
-def solve():
-    try:
-        data = request.json
-        
-        # Validation des données
-        if not all(isinstance(x, str) and x.strip() for x in data['tableEntrepots']):
-            return jsonify({'error': 'Tous les entrepôts doivent être des chaînes non vides.'}), 400
-        if not all(isinstance(x, str) and x.strip() for x in data['tableClients']):
-            return jsonify({'error': 'Tous les clients doivent être des chaînes non vides.'}), 400
-        try:
-            costs = [[int(x) for x in row] for row in data['tableCouts']]
-            if any(x < 0 for row in costs for x in row):
-                raise ValueError
-        except (ValueError, TypeError):
-            return jsonify({'error': 'Tous les coûts doivent être des nombres entiers positifs.'}), 400
-        try:
-            demand = [int(x) for x in data['tableQuantiteDemande']]
-            if any(x <= 0 for x in demand):
-                raise ValueError
-        except (ValueError, TypeError):
-            return jsonify({'error': 'Toutes les quantités demandées doivent être des nombres entiers positifs.'}), 400
-        try:
-            supply = [int(x) for x in data['tableQuantiteStocke']]
-            if any(x <= 0 for x in supply):
-                raise ValueError
-        except (ValueError, TypeError):
-            return jsonify({'error': 'Toutes les quantités stockées doivent être des nombres entiers positifs.'}), 400
-        
-        if sum(supply) != sum(demand):
-            return jsonify({'error': 'La somme des quantités stockées doit être égale à la somme des quantités demandées.'}), 400
-        
-        entrepots = data['tableEntrepots']
-        clients = data['tableClients']
-        quantite_demande = demand
-        quantite_stocke = supply
-        couts = costs
-        
-        result = Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, couts)
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({'error': f'Erreur serveur: {str(e)}'}), 500
+# Données d'entrée
+couts = [
+    [9, 12, 9, 6, 9, 10],
+    [7, 3, 7, 7, 5, 5],
+    [6, 5, 9, 11, 3, 11],
+    [6, 8, 11, 2, 2, 10]
+]
 
-if __name__ == '__main__':
-    app.run(debug=True)
+entrepots = ['A', 'B', 'C', 'D']
+clients = ['1', '2', '3', '4', '5', '6']
+quantite_stocke = [50, 60, 20, 90]
+quantite_demande = [40, 30, 70, 20, 40, 20]
+tableau_primary = [row[:] for row in couts]
+
+# Exécuter
+result = Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, tableau_primary)
+print(f"\nRéponse finale : {result}")

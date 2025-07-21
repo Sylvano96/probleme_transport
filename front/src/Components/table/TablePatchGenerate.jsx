@@ -98,6 +98,7 @@ export default function TablePatchGenerate() {
 
         try {
             const response = await axios.post('http://localhost:5000/solve', data1)
+            console.log(response)
             changeData(JSON.stringify(response.data))
             setResult(true)
         } catch (error) {
