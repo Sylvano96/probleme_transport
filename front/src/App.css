@@ -1,18 +1,12 @@
+@import "tailwindcss";
+
 .card-table {
-    padding: 20px 40px;
-    background-color: rgba(236, 158, 13, 0.918);
-    border: none;
+    padding: 20px 60px;
+    border: solid 4px ;
+    border-color: rgba(236, 158, 13, 0.918);
     border-radius: 20px;
     margin: 20px;
     transition: 0.5s;
-}
-
-body {
-    font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 16px;
-    /* Good base font size */
-    line-height: 1.6;
-    /* Improves readability */
 }
 
 .bg-dark, .bg-white {
@@ -28,6 +22,18 @@ body {
 .card-table:hover {
     background-color: orange;
     transition: 0.5s;
+    transform: scale(1.1);
+}
+
+.btn-starting{
+    border: solid 3px orange;
+    border-radius: 16px;
+    transition: 0.5s;
+}
+
+.btn-starting:hover{
+    transition: 0.5s;
+    background-color: orange;
 }
 
 table tr,
@@ -40,27 +46,11 @@ td {
     margin-top: 16px;
 }
 
-.icon-gear {
+.icon-gear{
     animation: rotate 2s infinite ease-in-out;
+    display: inline;
 }
 
-.btn-starting {
-    padding: 10px 10px;
-    border: 2px solid orange;
-    border-radius: 10px;
-    background-color: orange;
-    color: rgb(255, 255, 255);
-    text-decoration: none;
-    transition: .3s;
-    font-weight: bold;
-
-}
-
-.btn-starting:hover {
-    background-color: transparent;
-    border: 2px solid orange;
-    transition: .3s;
-}
 
 .iconArrowRight {
     font-size: 20px;

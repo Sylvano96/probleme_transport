@@ -110,7 +110,8 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
     solutions = [{
         'solution_base': sum(couts[i][j] * (tableau_minitab[i][j] if isinstance(tableau_minitab[i][j], (int, float)) else 0) for i in range(m) for j in range(n)),
         'tableau': [row[:] for row in tableau_minitab],
-        'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells]
+        'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells],
+        'negative_gains': []  # Pas de gains négatifs à l'initialisation
     }]
 
     # Afficher la solution initiale
@@ -147,15 +148,20 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
                     posNegGains.append((gain, (i, j)))
         print(f"Gains potentiels : {[(f'({entrepots[i]}, {clients[j]})={gain}', (i, j)) for gain, (i, j) in posNegGains]}")
 
+        # Sauvegarder les gains négatifs
+        negative_gains = [(gain, entrepots[i], clients[j]) for gain, (i, j) in posNegGains if gain < 0]
+        print(f"Gains négatifs : {negative_gains}")
+
         # Vérifier si une valeur négative apparaît dans le tableau
         has_negative = any(isinstance(val, (int, float)) and val < 0 for row in tableau_minitab for val in row)
         if has_negative:
             print("Une valeur négative détectée dans le tableau. Solution arrêtée avec coût final de 1160.")
-            solutions.append({
-                'solution_base': 1160,
-                'tableau': [[0, 0, 50, 0, 0, 0], [0, 30, 10, 0, 0, 20], [-20, 20, 0, 0, 0, 0], [40, 0, 10, 20, 40, 0]],
-                'direction_client': [('D', '4'), ('D', '5'), ('B', '2'), ('B', '6'), ('C', '1'), ('D', '1'), ('B', '3'), ('A', '3'), ('D', '3'), ('C', '2')]
-            })
+            # solutions.append({
+            #     'solution_base': 1160,
+            #     'tableau': [[0, 0, 50, 0, 0, 0], [0, 30, 10, 0, 0, 20], [-20, 20, 0, 0, 0, 0], [40, 0, 10, 20, 40, 0]],
+            #     'direction_client': [('D', '4'), ('D', '5'), ('B', '2'), ('B', '6'), ('C', '1'), ('D', '1'), ('B', '3'), ('A', '3'), ('D', '3'), ('C', '2')],
+            #     'negative_gains': negative_gains
+            # })
             break
 
         # Vérifier l'optimalité sans négatif
@@ -164,7 +170,8 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
             solutions.append({
                 'solution_base': sum(couts[i][j] * (tableau_minitab[i][j] if isinstance(tableau_minitab[i][j], (int, float)) else 0) for i in range(m) for j in range(n)),
                 'tableau': [row[:] for row in tableau_minitab],
-                'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells]
+                'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells],
+                'negative_gains': negative_gains
             })
             break
 
@@ -206,11 +213,12 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
             if tableau_minitab[i][j] == 0:
                 basic_cells.remove((i, j))
 
-        # Sauvegarder la solution après chaque itération
+        # Sauvegarder la solution après chaque itération avec les gains négatifs
         solutions.append({
             'solution_base': sum(couts[i][j] * (tableau_minitab[i][j] if isinstance(tableau_minitab[i][j], (int, float)) else 0) for i in range(m) for j in range(n)),
             'tableau': [row[:] for row in tableau_minitab],
-            'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells]
+            'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells],
+            'negative_gains': negative_gains
         })
 
         # Recalculer le coût
@@ -232,16 +240,18 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
 
 # Données d'entrée
 couts = [
-    [9, 12, 9, 6, 9, 10],
-    [7, 3, 7, 7, 5, 5],
-    [6, 5, 9, 11, 3, 11],
-    [6, 8, 11, 2, 2, 10]
+         [24, 22, 61, 49, 83, 35], 
+         [23, 39, 78, 28, 65, 42], 
+         [67, 56, 92, 24, 53, 54], 
+         [71, 43, 91, 67, 40, 49]
 ]
 
 entrepots = ['A', 'B', 'C', 'D']
+
 clients = ['1', '2', '3', '4', '5', '6']
-quantite_stocke = [50, 60, 20, 90]
-quantite_demande = [40, 30, 70, 20, 40, 20]
+
+quantite_stocke = [18, 32, 14, 9]
+quantite_demande = [9, 11, 28, 6, 14, 5]
 tableau_primary = [row[:] for row in couts]
 
 # Exécuter

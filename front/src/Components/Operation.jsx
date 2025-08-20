@@ -25,14 +25,14 @@ function Operation(){
                     handleNavigate('table4x4')
                     }}>
                     <span ><FaTableCells style={{fontSize:'150px'}}></FaTableCells></span>
-                    <p>Tableau 4 <FaXmark></FaXmark> 4</p>
+                    <p>Tableau 4 * 4</p>
                 </div>
                 <div className="card-table" style={{cursor:'pointer'}} onClick={(e)=> {
                     e.preventDefault()
                     handleNavigate('tablePatch')
                     }}>
-                    <span><FaRegSquarePlus style={{fontSize:'150px'}}></FaRegSquarePlus></span>
-                    <p>Tableau personnalisé <FaPencil></FaPencil></p>
+                    <span className="flex justify-center"><FaRegSquarePlus style={{fontSize:'150px'}}></FaRegSquarePlus></span>
+                    <p>Tableau personnalisé <FaPencil className="inline"></FaPencil></p>
                 </div>
             </div>
         </div>

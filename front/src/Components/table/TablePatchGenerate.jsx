@@ -1,215 +1,245 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import DisBg from '../DisBg'
-import Nav from '../Nav'
-import { ThemeContext } from '../../Context/useTheme'
-import { TableGenerate } from '../../Context/useGenerate'
-import axios from 'axios'
-import Result from '../Result/Result'
+import React, { useContext, useEffect, useRef, useState } from "react";
+import DisBg from "../DisBg";
+import Nav from "../Nav";
+import { ThemeContext } from "../../Context/useTheme";
+import { TableGenerate } from "../../Context/useGenerate";
+import axios from "axios";
+import Result from "../Result/Result";
 
 export default function TablePatchGenerate() {
+  const { theme } = useContext(ThemeContext);
+  const { column, row, data, changeData } = useContext(TableGenerate);
 
+  const [result, setResult] = useState(false);
+  const [error, setError] = useState("");
 
-    const { theme } = useContext(ThemeContext)
-    const { column, row, data, changeData } = useContext(TableGenerate)
+  const nbCout = column * row;
 
-    const [result, setResult] = useState(false)
-    const [error, setError] = useState("")
+  let x = [];
+  let d = [];
 
-    const nbCout = column * row
+  useEffect(() => {
+    if (data != "") {
+      setResult(!result);
+    }
+  }, []);
 
-    let x = []
-    let d = []
+  // Génération des valeurs
 
-    useEffect(() => {
-        if (data != "") {
-            setResult(!result)
-        }
-    }, [])
+  const clientRefs = Array.from({ length: column }).map(() => useRef(""));
+  const entrepotRefs = Array.from({ length: row }).map(() => useRef(""));
+  const quantitedemandeRefs = Array.from({ length: column }).map(() =>
+    useRef("")
+  );
+  const quantitestockeRefs = Array.from({ length: row }).map(() => useRef(""));
 
-    // Génération des valeurs 
+  let coutRefs = Array.from({ length: nbCout }).map(() => {
+    x.push(useRef(""));
+    if (x.length == column) {
+      d = x;
+      x = [];
+      return d;
+    }
+  });
 
-    const clientRefs = Array.from({ length: column }).map(() => useRef(''))
-    const entrepotRefs = Array.from({ length: row }).map(() => useRef(''))
-    const quantitedemandeRefs = Array.from({ length: column }).map(() => useRef(''))
-    const quantitestockeRefs = Array.from({ length: row }).map(() => useRef(''))
+  coutRefs = coutRefs.filter((data) => data !== undefined);
 
-    let coutRefs = Array.from({ length: nbCout }).map(() => {
-        x.push(useRef(''))
-        if (x.length == column) {
-            d = x
-            x = []
-            return d
-        }
-    })
+  console.log(coutRefs);
 
-    coutRefs = coutRefs.filter(data => data !== undefined)
+  // for (let index = 0; index < nbCout ; index++) {
 
-    console.log(coutRefs)
+  //     x.push(useRef(null))
 
-    // for (let index = 0; index < nbCout ; index++) {
+  //     if(x.length == column){
+  //         tableCouts.push(x)
+  //         x = []
+  //     }
+  // }
 
-    //     x.push(useRef(null))
+  /************************************** */
 
-    //     if(x.length == column){
-    //         tableCouts.push(x)
-    //         x = []
-    //     }
-    // }  
+  let tableCouts = [];
+  let tableEntrepots = [];
+  let tableClients = [];
+  let tableQuantiteDemande = [];
+  let tableQuantiteStocke = [];
 
-
-    /************************************** */
-
-    let tableCouts = []
-    let tableEntrepots = []
-    let tableClients = []
-    let tableQuantiteDemande = []
-    let tableQuantiteStocke = []
-
-    const handleClick = async (e) => {
-        e.preventDefault()
-        let a = []
-        for (let data of coutRefs) {
-            for (let x of data) {
-                a.push(parseInt(x.current.value))
-            }
-            if (tableCouts.length != row) {
-                tableCouts.push(a)
-                a = []
-            }
-        }
-
-        for (let data in entrepotRefs) {
-            tableQuantiteStocke.push(parseInt(quantitestockeRefs[data].current.value))
-            tableEntrepots.push(entrepotRefs[data].current.value)
-        }
-
-        for (let data in clientRefs) {
-            tableQuantiteDemande.push(parseInt(quantitedemandeRefs[data].current.value))
-            tableClients.push(clientRefs[data].current.value)
-        }
-
-        const data1 = {
-            tableCouts: tableCouts,
-            tableClients: tableClients,
-            tableEntrepots: tableEntrepots,
-            tableQuantiteDemande: tableQuantiteDemande,
-            tableQuantiteStocke: tableQuantiteStocke
-        }
-
-        try {
-            const response = await axios.post('http://localhost:5000/solve', data1)
-            console.log(response)
-            changeData(JSON.stringify(response.data))
-            setResult(true)
-        } catch (error) {
-            console.log(error)
-            setError(error.response.data.error)
-            setTimeout(() => {
-                setError('')
-            }, 3000)
-            tableClients = []
-            tableCouts = []
-            tableEntrepots = []
-            tableQuantiteDemande = []
-            tableQuantiteStocke = []
-        }
-
-        // console.log('table quantité demandé: ',tableQuantiteDemande)
-        // console.log('table quantité stocké : ',tableQuantiteStocke)
-        // console.log('table client : ',tableClients)
-        // console.log('table entrepôt : ',tableEntrepots)
-        // console.log('table coûts : ',tableCouts)
-
+  const handleClick = async (e) => {
+    e.preventDefault();
+    let a = [];
+    for (let data of coutRefs) {
+      for (let x of data) {
+        a.push(parseInt(x.current.value));
+      }
+      if (tableCouts.length != row) {
+        tableCouts.push(a);
+        a = [];
+      }
     }
 
-    /********************************************** */
-    return (
-        <DisBg>
-            <Nav></Nav>
-            {
-                !result ? <div>
-                    <h3 className="my-3 mx-5">Veuillez compléter le tableau</h3>
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '40%', maxWidth:'350px' }}>
-                                <h3>Entrepôts</h3>
-                                <form action="" className='mx-2'>
-                                    {
-                                        entrepotRefs.map((value, key) => (
-                                            <div key={key}>
-                                                <input type="text" ref={value} className='form-control m-1 text-center' style={theme == "dark" ? { backgroundColor: 'rgb(41, 39, 39)', transition: '0.6s', color: 'white' } : { backgroundColor: 'white', transition: '0.6s', color: 'black' }} />
-                                            </div>
-                                        ))
-                                    }
-                                </form>
-                            </div>
-                            <div style={{ position: 'absolute', top: '50px', right: '60px' }}>
-                                {
-                                    error && <div style={{ display: 'flex', justifyContent: 'center' }} className='m-1' >
-                                        <p className='alert alert-warning text-center'>{error}</p>
-                                    </div>
-                                }
-                            </div>
-                            <div>
-                                <div>
-                                    <h3 className='text-center'>Clients</h3>
-                                    <form action="" className='mx-2 d-flex'>
-                                        {
-                                            clientRefs.map((value, key) => (
-                                                <div key={key} className='mx-1'>
-                                                    <input type="text" ref={value} className='form-control mx-1 text-center' style={theme == "dark" ? { backgroundColor: 'rgb(41, 39, 39)', transition: '0.6s', color: 'white' } : { backgroundColor: 'white', transition: '0.6s', color: 'black' }} />
-                                                </div>
-                                            ))
-                                        }
-                                    </form>
-                                </div>
-                                <table className='table' style={theme == "dark" ? { backgroundColor: 'rgb(41, 39, 39)', transition: '0.6s', margin: '0px' } : { backgroundColor: 'white', transition: '0.6s', margin: '0px' }}>
-                                    <tbody>
-                                        {
-                                            coutRefs.map((value, key) => (
-                                                <tr key={key}>
-                                                    {
-                                                        value.map((val, key) => (
-                                                            <td key={key} style={theme == "dark" ? { backgroundColor: 'rgb(41, 39, 39)', transition: '0.6s' } : { backgroundColor: 'white', transition: '0.6s' }}><input type="text" ref={val} className="form-control text-center" style={theme == "dark" ? { backgroundColor: 'rgb(41, 39, 39)', transition: '0.6s', color: 'white' } : { backgroundColor: 'white', transition: '0.6s', color: 'black' }} /></td>
-                                                        ))
-                                                    }
-                                                </tr>
-                                            ))
-                                        }
-                                    </tbody>
-                                </table>
-                                <div>
-                                    <form action="" className='mx-2 d-flex'>
-                                        {
-                                            quantitedemandeRefs.map((value, key) => (
-                                                <div key={key} className='mx-1'>
-                                                    <input type="text" ref={value} className='form-control mx-1 text-center' style={theme == "dark" ? { backgroundColor: 'rgb(41, 39, 39)', transition: '0.6s', color: 'white' } : { backgroundColor: 'white', transition: '0.6s', color: 'black' }} />
-                                                </div>
-                                            ))
-                                        }
-                                    </form>
-                                    <h3 className='text-center my-1'>Quantités demandés</h3>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '40%', maxWidth:'350px' }}>
-                                <form action="" className='mx-2'>
-                                    {
-                                        quantitestockeRefs.map((value, key) => (
-                                            <div key={key}>
-                                                <input type="text" ref={value} className='form-control m-1 text-center' style={theme == "dark" ? { backgroundColor: 'rgb(41, 39, 39)', transition: '0.6s', color: 'white' } : { backgroundColor: 'white', transition: '0.6s', color: 'black' }} />
-                                            </div>
-                                        ))
-                                    }
-                                </form>
-                                <h3 className='mx-2'>Quantités stockées</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginRight: '40px' }}>
-                        <button className="btn btn-warning" onClick={handleClick}>Générer la réponse </button>
-                    </div>
-                </div> : <Result></Result>
-            }
-        </DisBg>
-    )
+    for (let data in entrepotRefs) {
+      tableQuantiteStocke.push(
+        parseInt(quantitestockeRefs[data].current.value)
+      );
+      tableEntrepots.push(entrepotRefs[data].current.value);
+    }
+
+    for (let data in clientRefs) {
+      tableQuantiteDemande.push(
+        parseInt(quantitedemandeRefs[data].current.value)
+      );
+      tableClients.push(clientRefs[data].current.value);
+    }
+
+    const data1 = {
+      tableCouts: tableCouts,
+      tableClients: tableClients,
+      tableEntrepots: tableEntrepots,
+      tableQuantiteDemande: tableQuantiteDemande,
+      tableQuantiteStocke: tableQuantiteStocke,
+    };
+
+    try {
+      const response = await axios.post("http://localhost:5000/solve", data1);
+      console.log(response);
+      changeData(JSON.stringify(response.data));
+      setResult(true);
+    } catch (error) {
+      console.log(error);
+      setError(error.response.data.error);
+      setTimeout(() => {
+        setError("");
+      }, 3000);
+      tableClients = [];
+      tableCouts = [];
+      tableEntrepots = [];
+      tableQuantiteDemande = [];
+      tableQuantiteStocke = [];
+    }
+
+    // console.log('table quantité demandé: ',tableQuantiteDemande)
+    // console.log('table quantité stocké : ',tableQuantiteStocke)
+    // console.log('table client : ',tableClients)
+    // console.log('table entrepôt : ',tableEntrepots)
+    // console.log('table coûts : ',tableCouts)
+  };
+
+  /********************************************** */
+  return (
+    <DisBg>
+      <Nav></Nav>
+      {!result ? (
+        <div className="px-6 py-6">
+          <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100 text-center">
+            Veuillez compléter le tableau
+          </h3>
+
+          {error && (
+            <div className="flex justify-center mb-4">
+              <p className="alert alert-warning text-center text-sm">{error}</p>
+            </div>
+          )}
+
+          <div className="flex flex-col lg:flex-row justify-center items-center gap-6">
+            {/* Entrepôts */}
+            <div className="w-full max-w-xs">
+              <h4 className="text-lg font-semibold mb-2 text-center dark:text-white">
+                Entrepôts
+              </h4>
+              <form className="space-y-2">
+                {entrepotRefs.map((ref, index) => (
+                  <input
+                    key={index}
+                    ref={ref}
+                    type="text"
+                    className={`w-full text-center my-2 px-3 py-2 rounded-md ${theme == "dark" ? "text-white bg-gray-600" : "text-black bg-gray-200 "} shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500`}
+                  />
+                ))}
+              </form>
+            </div>
+
+            {/* Tableau des coûts + clients */}
+            <div className="flex flex-col items-center w-full overflow-x-auto">
+              <h4 className="text-lg font-semibold mb-2 text-center dark:text-white">
+                Clients
+              </h4>
+              <form className="flex gap-2 mb-4">
+                {clientRefs.map((ref, index) => (
+                  <input
+                    key={index}
+                    ref={ref}
+                    type="text"
+                    className={`w-20 text-center px-2 py-2 ${theme == "dark" ? "text-white bg-gray-600" : "text-black bg-gray-200 "} rounded-md shadow-sm focus:outline-none`}
+                  />
+                ))}
+              </form>
+
+              {/* Matrice des coûts */}
+              <table className="table-auto border-collapse">
+                <tbody>
+                  {coutRefs.map((row, i) => (
+                    <tr key={i}>
+                      {row.map((ref, j) => (
+                        <td key={j} className="p-1">
+                          <input
+                            ref={ref}
+                            type="text"
+                            className={`w-20 text-center px-2 py-2 ${theme == "dark" ? "text-white bg-gray-600" : "text-black bg-gray-200 "} rounded-md shadow-sm focus:outline-none`}
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Quantité demandée */}
+              <form className="flex gap-2 mt-3">
+                {quantitedemandeRefs.map((ref, index) => (
+                  <input
+                    key={index}
+                    ref={ref}
+                    type="text"
+                    className={`w-20 text-center px-2 py-2 ${theme == "dark" ? "text-white bg-gray-600" : "text-black bg-gray-200 "} rounded-md shadow-sm focus:outline-none`}
+                  />
+                ))}
+              </form>
+              <h4 className="text-lg font-semibold mb-2 text-center dark:text-white">
+                Quantités demandés
+              </h4>
+            </div>
+
+            {/* Quantité stockée */}
+            <div className="w-full max-w-xs">
+              <h4 className="text-lg font-semibold mb-2 text-center dark:text-white">
+                Quantités stockées
+              </h4>
+              <form className="space-y-2">
+                {quantitestockeRefs.map((ref, index) => (
+                  <input
+                    key={index}
+                    ref={ref}
+                    type="text"
+                    className={`w-full text-center my-2 px-3 py-2 rounded-md ${theme == "dark" ? "text-white bg-gray-600" : "text-black bg-gray-200 "} shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500`}
+                  />
+                ))}
+              </form>
+            </div>
+          </div>
+
+          {/* Bouton de génération */}
+          <div className="mt-6 flex justify-end">
+            <button
+              className={`btn-starting block mb-2 font-medium text-sm tracking-wide  px-3 py-2 transition-all ${theme == 'dark' ? "text-white" : "text-gray-800"}`}
+              onClick={handleClick}
+            >
+              Générer la réponse
+            </button>
+          </div>
+        </div>
+      ) : (
+        <Result />
+      )}
+    </DisBg>
+  );
 }

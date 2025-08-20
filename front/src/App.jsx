@@ -3,12 +3,12 @@ import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
 import Home from './Components/Home'
 import Operation from './Components/Operation'
 import { ThemeProvider } from './Context/useTheme'
-import './App.css'
 import Table4x4 from './Components/table/Table4x4'
 import TablePatch from './Components/table/TablePatch'
 import Result from './Components/Result/Result'
 import {TableGenerateProvider } from './Context/useGenerate'
 import TablePatchGenerate from './Components/table/TablePatchGenerate'
+import './App.css'
 
 export default function App() {
 

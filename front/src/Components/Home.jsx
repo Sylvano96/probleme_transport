@@ -21,7 +21,7 @@ function Home(){
             
             <div style={{display:'block', padding:'30px 20px'}}>
                 <p style={{fontFamily:'monospace', fontSize:'1.5rem', width:'100%',maxWidth:'400px', textAlign:'left'}}>Bienvenue dans <span style={{color:'orange', fontSize:'2rem'}}>Solve</span> , l'application qui résouds le problème de transport dans R.O.</p>
-                <NavLink to='operation' className='btn-starting' style={theme == 'dark' ? {color:'white', transition:'.6s'} : {color:'black', transition:'.6s'}}>Commencer l'opération <FaGear className='mx-1 icon-gear'></FaGear></NavLink>
+                <NavLink to='operation' style={{textDecoration:'none'}} className={`btn-starting w-[250px] block mb-2 font-medium text-sm text-center tracking-wide  px-3 py-2 transition-all ${theme == 'dark' ? "text-white" : "text-gray-800"}`}>Commencer l'opération <FaGear className='mx-1 icon-gear'></FaGear></NavLink>
             </div>
         </div>
     </DisBg>
