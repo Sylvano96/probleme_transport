@@ -134,7 +134,7 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
         vx = [None] * m
         vy = [None] * n
         vx[0] = 0
-        equations = [(i, j) for i, j in basic_cells if isinstance(tableau_minitab[i][j], (int, float)) or tableau_minitab[i][j] == 'ε']
+        equations = [(i, j) for i, j in basic_cells]
         while None in vx or None in vy:
             for i, j in equations:
                 if vx[i] is not None and vy[j] is None:
@@ -157,27 +157,9 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
         negative_gains = [(gain, entrepots[i], clients[j]) for gain, (i, j) in posNegGains if gain < 0]
         print(f"Gains négatifs : {negative_gains}")
 
-        # Vérifier si une valeur négative apparaît dans le tableau
-        has_negative = any(isinstance(val, (int, float)) and val < 0 for row in tableau_minitab for val in row)
-        if has_negative:
-            print("Une valeur négative détectée dans le tableau. Solution arrêtée avec coût final de 1160.")
-            # solutions.append({
-            #     'solution_base': 1160,
-            #     'tableau': [[0, 0, 50, 0, 0, 0], [0, 30, 10, 0, 0, 20], [-20, 20, 0, 0, 0, 0], [40, 0, 10, 20, 40, 0]],
-            #     'direction_client': [('D', '4'), ('D', '5'), ('B', '2'), ('B', '6'), ('C', '1'), ('D', '1'), ('B', '3'), ('A', '3'), ('D', '3'), ('C', '2')],
-            #     'negative_gains': negative_gains
-            # })
-            break
-
         # Vérifier l'optimalité sans négatif
         if not posNegGains or all(gain >= 0 for gain, _ in posNegGains):
             print("Solution optimale trouvée (tous les gains sont positifs ou nuls).")
-            # solutions.append({
-            #     'solution_base': sum(couts[i][j] * (tableau_minitab[i][j] if isinstance(tableau_minitab[i][j], (int, float)) else 0) for i in range(m) for j in range(n)),
-            #     'tableau': [row[:] for row in tableau_minitab],
-            #     'direction_client': [(entrepots[i], clients[j]) for i, j in basic_cells],
-            #     'negative_gains': negative_gains
-            # })
             break
 
         # Sélectionner la cellule avec le gain négatif le plus important
@@ -196,26 +178,29 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
         min_qty = float('inf')
         for k in range(1, len(cycle_indices), 2):
             i, j = cycle_indices[k]
-            if isinstance(tableau_minitab[i][j], (int, float)):
-                min_qty = min(min_qty, tableau_minitab[i][j])
+            val = tableau_minitab[i][j]
+            if isinstance(val, (int, float)):
+                min_qty = min(min_qty, val)
         print(f"Quantité minimale à ajuster : {min_qty}")
 
         # Ajuster les quantités dans le cycle
         for k in range(len(cycle_indices) - 1):
             i, j = cycle_indices[k]
+            val = tableau_minitab[i][j]
+            if val == 'ε':
+                val = 0
             if k % 2 == 0:
-                if tableau_minitab[i][j] == 'ε':
-                    tableau_minitab[i][j] = 0  # Supprimer ε
-                    basic_cells.remove((i, j))
-                else:
-                    tableau_minitab[i][j] += min_qty
+                new_val = val + min_qty
             else:
-                tableau_minitab[i][j] -= min_qty
+                new_val = val - min_qty
+            if new_val < 0:
+                new_val = 0
+            tableau_minitab[i][j] = new_val
 
         # Mettre à jour la base
         basic_cells.append((new_i, new_j))
         for i, j in basic_cells[:]:
-            if tableau_minitab[i][j] == 0:
+            if tableau_minitab[i][j] == 0 or tableau_minitab[i][j] == 'ε':
                 basic_cells.remove((i, j))
 
         # Sauvegarder la solution après chaque itération avec les gains négatifs

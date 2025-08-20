@@ -42,6 +42,7 @@ def find_cycle(basic_cells, new_cell, m, n):
                 return None
             direction = 'col' if direction == 'row' else 'row'
             continue
+        
 
         if len(cycle) > 2 and (cycle[-1][0], new_cell[1]) in basic_cells:
             cycle.append((cycle[-1][0], new_cell[1]))
@@ -240,18 +241,18 @@ def Mini_tab(couts, quantite_demande, quantite_stocke, entrepots, clients, table
 
 # Données d'entrée
 couts = [
-         [24, 22, 61, 49, 83, 35], 
-         [23, 39, 78, 28, 65, 42], 
-         [67, 56, 92, 24, 53, 54], 
-         [71, 43, 91, 67, 40, 49]
+         [45, 60, 45, 30, 45, 50], 
+         [35, 15, 35, 35, 25, 25], 
+         [30, 25, 45, 55, 15, 55], 
+         [30, 40, 55, 10, 10, 50]
 ]
 
 entrepots = ['A', 'B', 'C', 'D']
 
 clients = ['1', '2', '3', '4', '5', '6']
 
-quantite_stocke = [18, 32, 14, 9]
-quantite_demande = [9, 11, 28, 6, 14, 5]
+quantite_stocke = [25, 30, 10, 45]
+quantite_demande = [20, 15, 35, 10, 20, 10]
 tableau_primary = [row[:] for row in couts]
 
 # Exécuter
